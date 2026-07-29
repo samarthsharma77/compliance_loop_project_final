@@ -39,6 +39,11 @@ source. Must explicitly refuse to state a compliance claim it cannot
 attribute to retrieved evidence — no uncited assertions, ever (this is the
 enforcement point for `PROJECT.md`'s "evidence citation, not vibes"
 principle).
+**Provider note:** runs against the Groq API (see `DECISIONS.md`). Groq
+models may follow structured-output/citation instructions differently than
+larger frontier models — the prompt and the citation validator (below) may
+need more explicit formatting instructions and stricter post-hoc validation
+than a first draft assumes. Test this early, don't assume it "just works."
 **Status:** not yet written.
 
 ### RAG Agent — retrieval query construction

@@ -79,6 +79,49 @@ Code, Cursor + Claude workflow).
 Phase 1 onward. Use Haiku during dev/testing to control cost; reserve Sonnet
 for cases where citation-quality reasoning matters most.
 
+## 2026-07-29 — SUPERSEDES "Standardize on Anthropic Claude": switch LLM to Groq
+**Decision:** All LLM calls (Decision Agent, future RAG synthesis, etc.) use
+the Groq API instead of the Anthropic API. This supersedes the earlier entry
+above ("Standardize on Anthropic Claude, not OpenAI") — that decision is kept
+in this log for history, not deleted, but is no longer current.
+**Reason:** No budget for Anthropic API usage. Groq offers free-tier
+inference, which fits the solo/free-tier constraint that governs every other
+infra choice in this project.
+**Impact:**
+- `ANTHROPIC_API_KEY` is removed from `.env`; `GROQ_API_KEY` replaces it.
+- Any agent code, prompt-loading logic, or Cursor prompt written before this
+  date that references "Claude" or the Anthropic SDK must be updated —
+  check `agents/decision_agent/` and any prompt files in `prompts/` first.
+- Groq's hosted model catalog changes over time — pin exact model IDs at
+  build time from console.groq.com/docs/models rather than hardcoding a
+  name that may be deprecated later; record the actual model ID chosen in
+  a follow-up entry here once picked.
+- Citation-enforcement logic (the "evidence citation, not vibes" principle
+  in `PROJECT.md`) is a prompting/validation-layer concern, not
+  provider-specific — it must be re-verified against Groq's actual output
+  behavior, not assumed to carry over unchanged from Claude.
+
+## 2026-07-29 — Embeddings: local Sentence Transformers instead of Voyage AI
+**Decision:** The RAG Agent's embedding step uses `sentence-transformers`
+with the `BAAI/bge-small-en-v1.5` model, run locally on CPU, instead of a
+hosted embeddings API (Voyage AI).
+**Reason:** No budget for a paid/metered embeddings API; a local
+sentence-transformers model has zero per-call cost and no external account
+dependency at all — one less real secret to manage.
+**Impact:**
+- `VOYAGE_API_KEY` is removed from `.env`; replaced with `EMBEDDING_MODEL`,
+  `EMBEDDING_DEVICE`, `EMBEDDING_DIMENSION` (no key needed).
+- FAISS index dimensionality must match `bge-small-en-v1.5`'s output (384),
+  not Voyage's — if any earlier scaffolding assumed a different vector
+  dimension, it needs to be regenerated, not just reconfigured.
+- First run downloads model weights (~130MB) from Hugging Face; this needs
+  network access once, then works fully offline — fine for local dev, worth
+  remembering if a build environment has restricted egress.
+- Local embedding quality is lower than a large hosted model; if regulatory
+  clause retrieval quality (Phase 1 RAG Agent) turns out to be the
+  bottleneck later, revisit this — but don't preemptively "upgrade" it
+  without evidence it's actually underperforming.
+
 ---
 
 *Add new entries above this line, most recent at the top of the log or

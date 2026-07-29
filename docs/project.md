@@ -61,13 +61,17 @@ decision made six months ago.
 | Streaming | Redpanda (Kafka-API compatible) | CDC via Debezium |
 | Cache | Redis | |
 | Object storage | MinIO (S3-compatible) | swap to real S3 on deploy |
-| LLM | Anthropic Claude (Sonnet/Haiku via API) | not OpenAI — this project standardizes on Claude |
+| LLM | Groq API | free/low-cost inference — see DECISIONS.md for why this replaced Anthropic |
+| Embeddings | Sentence Transformers, `BAAI/bge-small-en-v1.5`, local | runs on CPU, no API key, no cost — see DECISIONS.md |
 | Frontend | React | not built in Phase 0 |
 | Containerization | Docker / Docker Compose | Kubernetes deferred to Phase 5 |
 | Signing | Local ED25519 keypair (dev) → Cloud KMS (deploy) | |
 
 ## Solo/free-tier context
-Built solo, on free-tier cloud credits, primarily in Cursor + Claude. See
+Built solo, on free-tier cloud credits, primarily in Cursor. LLM inference
+via Groq and embeddings via a local Sentence Transformers model were chosen
+specifically to keep ongoing running cost near zero — see `DECISIONS.md`.
+See
 `ARCHITECTURE.md` for which managed services are substituted with
 self-hosted equivalents during local development, and `DECISIONS.md` for the
 reasoning behind each substitution.

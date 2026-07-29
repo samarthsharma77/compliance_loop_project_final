@@ -61,7 +61,9 @@ hand from the regulatory corpus.
 **Input:** Case context (application type, applicant category, flagged
 issues from other agents).
 **Output:** Ranked list of candidate clauses with similarity scores.
-**Uses:** FAISS local vector index over embedded regulatory text chunks.
+**Uses:** FAISS local vector index over regulatory text chunks embedded with
+`sentence-transformers` (`BAAI/bge-small-en-v1.5`, local CPU, no API key —
+see `DECISIONS.md`).
 **Evidence emitted:** every retrieved chunk is logged with `role=RETRIEVED`;
 only chunks the Decision Agent actually uses get promoted to `role=CITED`.
 **Status:** not yet implemented.
@@ -74,8 +76,11 @@ transaction records) that justifies it.
 **Input:** All upstream agent outputs + RAG Agent's retrieved clauses.
 **Output:** Final decision (approve/reject/refer-to-human), confidence score,
 citation list.
-**Uses:** Anthropic Claude API. Must fail closed — if it cannot produce a
-citation for a claim, it cannot make that claim part of the decision.
+**Uses:** Groq API (see `DECISIONS.md` for why this replaced Anthropic).
+Must fail closed — if it cannot produce a citation for a claim, it cannot
+make that claim part of the decision. Citation-enforcement behavior must be
+verified against Groq's actual output patterns, not assumed from prior
+provider experience.
 **Evidence emitted:** promotes RAG-retrieved evidence to `CITED` where
 actually used; this is the row that closes the loop for §1's "evidence
 citation, not vibes" principle.
